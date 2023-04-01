@@ -7,6 +7,7 @@ publisher TEXT NOT NULL,
 language TEXT NOT NULL,
 genre TEXT NOT NULL,
 original_title TEXT NOT NULL,
+original_year INTEGER NOT NULL,
 isbn TEXT NOT NULL,
 comments TEXT NOT NULL,
 lent_out BOOLEAN NOT NULL

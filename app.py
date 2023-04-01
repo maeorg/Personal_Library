@@ -3,6 +3,7 @@
 # - books i have
 # - who i have lent them to and when
 
+import csv
 import sqlite3
 from datetime import date
 
@@ -19,14 +20,15 @@ class Lender():
 
 
 class Book:
-    def __init__(self, title, author, publisher, language, year, genre, original_title="-", isbn="-", comments="-"):
+    def __init__(self, title, author, publisher, language, year, genre, original_title, original_year, isbn, comments="-"):
         self.title = title
-        self.original_title = original_title
         self.author = author
-        self.year = year
         self.publisher = publisher
         self.language = language
+        self.year = year
         self.genre = genre
+        self.original_title = original_title
+        self.original_year = original_year
         self.isbn = isbn
         self.comments = comments
         self.lent_out = False
@@ -46,7 +48,7 @@ class Book:
         return "Title: " + self.title + "\nAuthor: " + self.author + "\nYear: " + self.year + \
                 "\nPublisher: " + self.publisher + "\nGenre: " + self.genre + "\nLanguage: " + self.language + \
                 "\nOriginal title: " + self.original_title + "\nISBN: " + self.isbn + "\nComments: " + self.comments +\
-                 "\nLent out: " + str(self.lent_out)
+                 "\nLent out: " + str(self.lent_out) + "\nOriginal year: " + self.original_year
 
 
     def return_book(self, lending_id, returned_time):
@@ -56,28 +58,36 @@ class Book:
 
 
 def main():
-    book = Book('best book ever', 'great author', 'cool publisher', 'english', '2004', 'miscellaneous')
+    # book = Book('best book ever', 'great author', 'cool publisher', 'english', '2004', 'miscellaneous')
     lender = Lender("Kalle Kant", "kollane")
-    # print(book)
     # lender_id = add_lender(lender)
-    # print(lender_id)
-    book_id = add_book(book)
-    # print(book_id)
-    remove_book(book_id)
+    # book_id = add_book(book)
+    # remove_book(book_id)
     # remove_lender(id)
-    lender_id = 20
-    book_id = 7
-    lending_time = date.today()
-    lend_book(book_id, lender_id, lending_time)
+    # lender_id = 25
+    # book_id = 45
+    # lending_time = date.today()
+    # lend_book(book_id, lender_id, lending_time)
+    # add_all_books_to_database(get_books_from_csv("books.csv"))    
+
+
+# Connect to the database
+def connect_database(database):
+    connect = None
+    try:
+        connect = sqlite3.connect(database)
+    except Error as e:
+        print(e)
+    return connect
 
 
 def add_book(book):
     book_as_list = [book.title, book.author, book.year, book.publisher, book.language, book.genre, \
-                    book.original_title, book.isbn, book.comments, book.lent_out]
+                    book.original_title, book.original_year, book.isbn, book.comments, book.lent_out]
     db = connect_database(database)
     with db:
         db.execute("INSERT INTO books(title, author, year, publisher, language, genre, original_title, \
-                    isbn, comments, lent_out) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", book_as_list)
+                    original_year, isbn, comments, lent_out) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", book_as_list)
         db.commit()
         book_id = db.execute("SELECT last_insert_rowid()").fetchone()
         return book_id[0]
@@ -113,14 +123,19 @@ def lend_book(book_id, lender_id, lending_time):
         db.commit()
 
 
-# Connect to the database
-def connect_database(database):
-    connect = None
-    try:
-        connect = sqlite3.connect(database)
-    except Error as e:
-        print(e)
-    return connect
+# Reads the books data from csv file and returns a list with a dictionary for each book
+def get_books_from_csv(filename):
+    books = {}
+    with open(filename, newline='') as csvfile:
+        reader = csv.DictReader(csvfile)
+        books = list(reader)
+    return books
+
+
+def add_all_books_to_database(books):
+        for item in books:
+            book = Book(*item.values())
+            add_book(book)
 
 
 if __name__ == "__main__":
