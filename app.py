@@ -57,7 +57,7 @@ class Book:
 def main():
     book = Book('best book ever', 'great author', 'cool publisher', '2004', 'miscellaneous')
     lender = Lender("Kalle Kant", "kollane")
-    # id = 11
+    # print(book)
     # remove_book(id)
     # add_book(book)
     # lender_id = add_lender(lender)
@@ -65,8 +65,8 @@ def main():
     # book_id = add_book(book)
     # print(book_id)
     # remove_lender(id)
-    lender_id = 5
-    book_id = 3
+    lender_id = 20
+    book_id = 7
     lending_time = date.today()
     lend_book(book_id, lender_id, lending_time)
 
@@ -109,6 +109,7 @@ def lend_book(book_id, lender_id, lending_time):
     with db:
         db.execute("INSERT INTO lending_log(book_id, lender_id, lending_time, returned_time) \
                     VALUES(?, ?, ?, ?)", [book_id, lender_id, lending_time, ""])
+        db.execute("UPDATE books SET lent_out = ? WHERE id = ?", [True, book_id])
         db.commit()
 
 
