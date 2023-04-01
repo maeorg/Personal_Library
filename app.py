@@ -19,12 +19,13 @@ class Lender():
 
 
 class Book:
-    def __init__(self, title, author, publisher, year, genre, original_title="-", isbn="-", comments="-"):
+    def __init__(self, title, author, publisher, language, year, genre, original_title="-", isbn="-", comments="-"):
         self.title = title
         self.original_title = original_title
         self.author = author
         self.year = year
         self.publisher = publisher
+        self.language = language
         self.genre = genre
         self.isbn = isbn
         self.comments = comments
@@ -43,8 +44,8 @@ class Book:
 
     def __str__(self):
         return "Title: " + self.title + "\nAuthor: " + self.author + "\nYear: " + self.year + \
-                "\nPublisher: " + self.publisher + "\nGenre: " + self.genre + "\nOriginal title: " \
-                 + self.original_title + "\nISBN: " + self.isbn + "\nComments: " + self.comments +\
+                "\nPublisher: " + self.publisher + "\nGenre: " + self.genre + "\nLanguage: " + self.language + \
+                "\nOriginal title: " + self.original_title + "\nISBN: " + self.isbn + "\nComments: " + self.comments +\
                  "\nLent out: " + str(self.lent_out)
 
 
@@ -55,15 +56,14 @@ class Book:
 
 
 def main():
-    book = Book('best book ever', 'great author', 'cool publisher', '2004', 'miscellaneous')
+    book = Book('best book ever', 'great author', 'cool publisher', 'english', '2004', 'miscellaneous')
     lender = Lender("Kalle Kant", "kollane")
     # print(book)
-    # remove_book(id)
-    # add_book(book)
     # lender_id = add_lender(lender)
     # print(lender_id)
-    # book_id = add_book(book)
+    book_id = add_book(book)
     # print(book_id)
+    remove_book(book_id)
     # remove_lender(id)
     lender_id = 20
     book_id = 7
@@ -72,12 +72,12 @@ def main():
 
 
 def add_book(book):
-    book_as_list = [book.title, book.author, book.year, book.publisher, book.genre, \
+    book_as_list = [book.title, book.author, book.year, book.publisher, book.language, book.genre, \
                     book.original_title, book.isbn, book.comments, book.lent_out]
     db = connect_database(database)
     with db:
-        db.execute("INSERT INTO books(title, author, year, publisher, genre, original_title, \
-                    isbn, comments, lent_out) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)", book_as_list)
+        db.execute("INSERT INTO books(title, author, year, publisher, language, genre, original_title, \
+                    isbn, comments, lent_out) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", book_as_list)
         db.commit()
         book_id = db.execute("SELECT last_insert_rowid()").fetchone()
         return book_id[0]
