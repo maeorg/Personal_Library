@@ -1,19 +1,21 @@
 # My personal library
-# (CSV?) SQL database: 
+# SQL database: 
 # - books i have
 # - who i have lent them to and when
 
 import sqlite3
+from datetime import date
 
 
 # Database file
 database = "database.db"
 
 
-class Borrower():
-    def __init__(self, name, contact_info="-"):
+class Lender():
+    def __init__(self, name, info="-"):
         self.name = name
-        self.contact_info = contact_info
+        self.info = info
+        self.id = None
 
 
 class Book:
@@ -26,6 +28,7 @@ class Book:
         self.genre = genre
         self.isbn = isbn
         self.comments = comments
+        self.lent_out = False
 
 
     @property
@@ -41,15 +44,82 @@ class Book:
     def __str__(self):
         return "Title: " + self.title + "\nAuthor: " + self.author + "\nYear: " + self.year + \
                 "\nPublisher: " + self.publisher + "\nGenre: " + self.genre + "\nOriginal title: " \
-                 + self.original_title + "\nISBN: " + self.isbn + "\nComments: " + self.comments
+                 + self.original_title + "\nISBN: " + self.isbn + "\nComments: " + self.comments +\
+                 "\nLent out: " + str(self.lent_out)
 
+
+    def return_book(self, lending_id, returned_time):
+        # Update in borrowings database adding the current borrowings return time
+        self.lent_out = False
+        ...
 
 
 def main():
     book = Book('best book ever', 'great author', 'cool publisher', '2004', 'miscellaneous')
-    print(book)
-    book.title = "hey"
-    print(book.title)
+    lender = Lender("Kalle Kant", "kollane")
+    # id = 11
+    # remove_book(id)
+    # add_book(book)
+    # lender_id = add_lender(lender)
+    # print(lender_id)
+    # book_id = add_book(book)
+    # print(book_id)
+    # remove_lender(id)
+    lender_id = 5
+    book_id = 3
+    lending_time = date.today()
+    lend_book(book_id, lender_id, lending_time)
+
+
+def add_book(book):
+    book_as_list = [book.title, book.author, book.year, book.publisher, book.genre, \
+                    book.original_title, book.isbn, book.comments, book.lent_out]
+    db = connect_database(database)
+    with db:
+        db.execute("INSERT INTO books(title, author, year, publisher, genre, original_title, \
+                    isbn, comments, lent_out) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)", book_as_list)
+        db.commit()
+        book_id = db.execute("SELECT last_insert_rowid()").fetchone()
+        return book_id[0]
+
+
+def remove_book(id):
+    db = connect_database(database)
+    with db:
+        db.execute("DELETE FROM books WHERE id=?", [id])
+
+
+def add_lender(lender):
+    db = connect_database(database)
+    with db:
+        db.execute("INSERT INTO lenders(name, info) VALUES(?, ?)", [lender.name, lender.info])
+        db.commit()
+        lender_id = db.execute("SELECT last_insert_rowid()").fetchone()
+        return lender_id[0]
+
+
+def remove_lender(id):
+    db = connect_database(database)
+    with db:
+        db.execute("DELETE FROM lenders WHERE id=?", [id])
+
+
+def lend_book(book_id, lender_id, lending_time):
+    db = connect_database(database)
+    with db:
+        db.execute("INSERT INTO lending_log(book_id, lender_id, lending_time, returned_time) \
+                    VALUES(?, ?, ?, ?)", [book_id, lender_id, lending_time, ""])
+        db.commit()
+
+
+# Connect to the database
+def connect_database(database):
+    connect = None
+    try:
+        connect = sqlite3.connect(database)
+    except Error as e:
+        print(e)
+    return connect
 
 
 if __name__ == "__main__":

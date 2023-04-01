@@ -7,22 +7,29 @@ publisher TEXT NOT NULL,
 genre TEXT NOT NULL,
 original_title TEXT NOT NULL,
 isbn TEXT NOT NULL,
-comments TEXT NOT NULL
+comments TEXT NOT NULL,
+lent_out BOOLEAN NOT NULL
 );
 
+drop table books;
 
-CREATE TABLE borrowers(
+
+CREATE TABLE lenders(
 id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL UNIQUE,
 name TEXT NOT NULL,
-contact_info TEXT NOT NULL
+info TEXT NOT NULL
 );
 
+drop table lenders;
 
-CREATE TABLE borrowings(
+CREATE TABLE lending_log(
 id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL UNIQUE,
-time TIMESTAMP NOT NULL,
+lending_time TIMESTAMP NOT NULL,
+returned_time TIMESTAMP,
 book_id INTEGER NOT NULL,
-borrower_id INTEGER NOT NULL,
-FOREIGN KEY (borrower_id) REFERENCES borrowers(id),
+lender_id INTEGER NOT NULL,
+FOREIGN KEY (lender_id) REFERENCES lenders(id),
 FOREIGN KEY (book_id) REFERENCES books(id)
 );
+
+drop table lending_log;
