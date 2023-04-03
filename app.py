@@ -51,15 +51,9 @@ class Book:
                  "\nLent out: " + str(self.lent_out) + "\nOriginal year: " + self.original_year
 
 
-    def return_book(self, lending_id, returned_time):
-        # Update in borrowings database adding the current borrowings return time
-        self.lent_out = False
-        ...
-
-
 def main():
-    # book = Book('best book ever', 'great author', 'cool publisher', 'english', '2004', 'miscellaneous')
-    lender = Lender("Kalle Kant", "kollane")
+    book = Book('blaaa', 'blaaa author', 'blaaa publisher', 'english', '2004', 'miscellaneous', 'blaaa', 'blaaa', 'blaaa')
+    lender = Lender("Blaa Kant", "bla bla")
     # lender_id = add_lender(lender)
     # book_id = add_book(book)
     # remove_book(book_id)
@@ -69,6 +63,7 @@ def main():
     # lending_time = date.today()
     # lend_book(book_id, lender_id, lending_time)
     # add_all_books_to_database(get_books_from_csv("books.csv"))    
+    return_book(48, date.today())
 
 
 # Connect to the database
@@ -120,6 +115,15 @@ def lend_book(book_id, lender_id, lending_time):
         db.execute("INSERT INTO lending_log(book_id, lender_id, lending_time, returned_time) \
                     VALUES(?, ?, ?, ?)", [book_id, lender_id, lending_time, ""])
         db.execute("UPDATE books SET lent_out = ? WHERE id = ?", [True, book_id])
+        db.commit()
+
+
+def return_book(book_id, returned_time):
+    # Update in borrowings database adding the current borrowings return time
+    db = connect_database(database)
+    with db:
+        db.execute("UPDATE lending_log SET returned_time = ? WHERE book_id = ?", [returned_time, book_id])
+        db.execute("UPDATE books SET lent_out = ? WHERE id = ?", [False, book_id])
         db.commit()
 
 
